@@ -1,0 +1,9 @@
+/.shards/
+/.vscode/
+/bin/
+/lib/
+/tmp/
+*.dwarf
+.env*
+/.crystal-version
+/*.lock
