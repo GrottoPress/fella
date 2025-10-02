@@ -1,5 +1,5 @@
 name: fella
-version: 0.1.0
+version: 0.1.1
 description: An expressive HTTP log handler for Crystal
 
 authors:
