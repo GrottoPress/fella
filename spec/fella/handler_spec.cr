@@ -26,7 +26,7 @@ describe Fella::Handler do
   it "logs errors" do
     Log.capture(AppServer.log.source) do |logs|
       AppServer.new.listen do |server|
-        response = HTTP::Client.get server.uri("/exception")
+        HTTP::Client.get server.uri("/exception")
       rescue
         logs.check(:error, "")
       end
