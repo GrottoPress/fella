@@ -6,5 +6,5 @@
 *.dwarf
 .env*
 /.*-version*
-/.crystal-version
 /*.lock
+/.vfox*
