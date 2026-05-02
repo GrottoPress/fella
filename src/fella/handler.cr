@@ -38,11 +38,19 @@ class Fella::Handler
       id: UUID.random.hexstring,
       ip_address: request.remote_address.as?(Socket::IPAddress).try(&.address),
       method: request.method,
-      url: request.resource,
+      url: sanitize_input(request.resource),
       http_version: request.version,
       status_code: response.status_code,
       duration_ms: duration.try(&.total_milliseconds.round.to_i),
-      user_agent: request.headers["User-Agent"]?
+      user_agent: user_agent(request)
     }
+  end
+
+  private def user_agent(request)
+    request.headers["User-Agent"]?.try { |agent| sanitize_input(agent) }
+  end
+
+  private def sanitize_input(input)
+    input[0, 512].gsub(/[\p{C}\r\n\t]+/, ' ').strip
   end
 end
