@@ -24,7 +24,7 @@ struct AppServer
     spawn { listen }
 
     until @server.listening?
-      Fiber.yield
+      sleep 1.microsecond
     end
   end
 
