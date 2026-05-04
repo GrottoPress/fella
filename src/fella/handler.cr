@@ -36,6 +36,7 @@ class Fella::Handler
 
     {
       id: UUID.random.hexstring,
+      request_id: request_id(request),
       ip_address: request.remote_address.as?(Socket::IPAddress).try(&.address),
       method: request.method,
       url: sanitize_input(request.resource),
@@ -62,6 +63,12 @@ class Fella::Handler
       uri.fragment = nil
 
       sanitize_input(uri.to_s)
+    end
+  end
+
+  private def request_id(request)
+    Fella.settings.request_id_header.try do |header|
+      request.headers[header]?.try { |request_id| sanitize_input(request_id) }
     end
   end
 

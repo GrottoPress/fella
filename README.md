@@ -37,6 +37,8 @@ Fella.configure do |settings|
       !key.match(/code|password|secret|token/i).nil?
     end
   end
+
+  settings.request_id_header = "X-Request-ID"
 end
 
 server = HTTP::Server.new([

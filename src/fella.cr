@@ -14,6 +14,8 @@ module Fella
           !key.match(/code|password|secret|token/i).nil?
         end
       end
+
+    class_property request_id_header : String? = "X-Request-ID"
   end
 
   def settings

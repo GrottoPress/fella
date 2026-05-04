@@ -105,14 +105,39 @@ describe Fella::Handler do
   it "strips potentially sensitive data from Referer" do
     Log.capture(AppServer.log.source) do |logs|
       AppServer.new.listen do |server|
-        headers = HTTP::Headers.new
-
-        headers["Referer"] = "http://user:pass@example.com/path\
+        headers = HTTP::Headers{
+          "Referer" => "http://user:pass@example.com/path\
           ?query=1&secret=token#fragment"
+        }
 
         HTTP::Client.get server.uri("/success"), headers: headers
+
         logs.check(:info, "")
         logs.entry.data[:referer].to_s.should eq("http://example.com/path")
+      end
+    end
+  end
+
+  it "sanitizes request ID" do
+    Log.capture(AppServer.log.source) do |logs|
+      AppServer.new.listen do |server|
+        headers = HTTP::Headers{"X-Request-ID" => "request\t123"}
+        HTTP::Client.get server.uri("/success"), headers: headers
+
+        logs.check(:info, "")
+        logs.entry.data[:request_id].to_s.should eq("request 123")
+      end
+    end
+  end
+
+  it "truncates long Referer" do
+    Log.capture(AppServer.log.source) do |logs|
+      AppServer.new.listen do |server|
+        headers = HTTP::Headers{"X-Request-ID" => "a" * 600}
+        HTTP::Client.get server.uri("/success"), headers: headers
+
+        logs.check(:info, "")
+        logs.entry.data[:request_id].to_s.size.should be <= 512
       end
     end
   end
