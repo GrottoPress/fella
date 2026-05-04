@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] - 
 
+### Added
+- Log HTTP Referer
+
 ### Fixed
 - Sanitize URL and user agent strings
 - Limit length of URL and user agents to 512 characters

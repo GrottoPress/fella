@@ -42,12 +42,26 @@ class Fella::Handler
       http_version: request.version,
       status_code: response.status_code,
       duration_ms: duration.try(&.total_milliseconds.round.to_i),
-      user_agent: user_agent(request)
+      user_agent: user_agent(request),
+      referer: referer(request)
     }
   end
 
   private def user_agent(request)
     request.headers["User-Agent"]?.try { |agent| sanitize_input(agent) }
+  end
+
+  private def referer(request)
+    request.headers["Referer"]?.try do |referer|
+      uri = URI.parse(referer)
+
+      uri.query = nil
+      uri.user = nil
+      uri.password = nil
+      uri.fragment = nil
+
+      sanitize_input(uri.to_s)
+    end
   end
 
   private def sanitize_input(input)

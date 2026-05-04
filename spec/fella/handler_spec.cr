@@ -82,4 +82,46 @@ describe Fella::Handler do
       end
     end
   end
+
+  it "sanitizes Referer" do
+    Log.capture(AppServer.log.source) do |logs|
+      AppServer.new.listen do |server|
+        headers = HTTP::Headers.new
+        headers["Referer"] = "https://example.com/\tpage"
+        HTTP::Client.get server.uri("/success"), headers: headers
+        logs.check(:info, "")
+        logs.entry.data[:referer].to_s.should eq("https://example.com/ page")
+      end
+    end
+  end
+
+  it "truncates long Referer" do
+    long_referer = "https://example.com/" + "a" * 600
+    Log.capture(AppServer.log.source) do |logs|
+      AppServer.new.listen do |server|
+        headers = HTTP::Headers.new
+        headers["Referer"] = long_referer
+        HTTP::Client.get server.uri("/success"), headers: headers
+        logs.check(:info, "")
+        referer = logs.entry.data[:referer].to_s
+        referer.size.should be <= 512
+        referer.size.should eq(512)
+      end
+    end
+  end
+
+  it "strips potentially sensitive data from Referer" do
+    Log.capture(AppServer.log.source) do |logs|
+      AppServer.new.listen do |server|
+        headers = HTTP::Headers.new
+
+        headers["Referer"] = "http://user:pass@example.com/path\
+          ?query=1&secret=token#fragment"
+
+        HTTP::Client.get server.uri("/success"), headers: headers
+        logs.check(:info, "")
+        logs.entry.data[:referer].to_s.should eq("http://example.com/path")
+      end
+    end
+  end
 end
