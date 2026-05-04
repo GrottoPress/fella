@@ -76,7 +76,7 @@ class Fella::Handler
 
   private def redact_url(request)
     sensitive_params = Fella.settings.sensitive_params
-    return request.uri.to_s if sensitive_params.empty?
+    return request.resource if sensitive_params.empty?
 
     query = URI::Params.build do |form|
       request.query_params.each do |name, value|
