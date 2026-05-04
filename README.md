@@ -32,13 +32,10 @@ require "http/server"
 require "fella"
 
 Fella.configure do |settings|
-  settings.skip_if = ->(request : HTTP::Request) do
-    request.query_params.any? do |key, _|
-      !key.match(/code|password|secret|token/i).nil?
-    end
-  end
-
   settings.request_id_header = "X-Request-ID"
+
+  # Uses substring matching, so `token` would match `access_token`
+  settings.sensitive_params = {"code", "password", "secret", "token"}
 end
 
 server = HTTP::Server.new([

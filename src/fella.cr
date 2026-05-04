@@ -8,14 +8,14 @@ module Fella
   extend self
 
   private module Settings
-    class_property skip_if : Proc(HTTP::Request, Bool) =
-      ->(request : HTTP::Request) do
-        request.query_params.any? do |key, _|
-          !key.match(/code|password|secret|token/i).nil?
-        end
-      end
-
     class_property request_id_header : String? = "X-Request-ID"
+
+    class_property sensitive_params : Indexable(String) = {
+      "code",
+      "password",
+      "secret",
+      "token"
+    }
   end
 
   def settings

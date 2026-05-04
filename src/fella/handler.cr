@@ -5,8 +5,6 @@ class Fella::Handler
   end
 
   def call(context)
-    return call_next(context) if Fella.settings.skip_if.call(context.request)
-
     duration = Time.measure { call_next(context) }
 
     if context.response.status_code < 400
@@ -39,7 +37,7 @@ class Fella::Handler
       request_id: request_id(request),
       ip_address: request.remote_address.as?(Socket::IPAddress).try(&.address),
       method: request.method,
-      url: sanitize_input(request.resource),
+      url: sanitize_input(redact_url request),
       http_version: request.version,
       status_code: response.status_code,
       body_bytes: content_length(response),
@@ -74,6 +72,32 @@ class Fella::Handler
 
   private def user_agent(request)
     request.headers["User-Agent"]?.try { |agent| sanitize_input(agent) }
+  end
+
+  private def redact_url(request)
+    sensitive_params = Fella.settings.sensitive_params
+    return request.uri.to_s if sensitive_params.empty?
+
+    query = URI::Params.build do |form|
+      request.query_params.each do |name, value|
+        if sensitive_params.any? { |key| name.downcase.includes?(key.downcase) }
+          form.add(name, "REDACTED")
+        else
+          form.add(name, value)
+        end
+      end
+    end
+
+    URI.new(
+      request.uri.scheme,
+      request.uri.host,
+      request.uri.port,
+      request.uri.path,
+      query.empty? ? nil : query,
+      request.uri.user,
+      request.uri.password,
+      request.uri.fragment
+    ).request_target
   end
 
   private def sanitize_input(input)

@@ -13,12 +13,13 @@ describe Fella::Handler do
     end
   end
 
-  it "skips logs for sensitive requests" do
+  it "redacts sensitive params" do
     Log.capture(AppServer.log.source) do |logs|
       AppServer.new.listen do |server|
-        HTTP::Client.get server.uri("/success?token=a1b2c3")
+        HTTP::Client.get server.uri("/success?ID_Token=a1b2c3")
 
-        logs.empty
+        logs.check(:info, "")
+        logs.entry.data[:url].should eq("/success?ID_Token=REDACTED")
       end
     end
   end
