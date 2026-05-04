@@ -41,10 +41,15 @@ class Fella::Handler
       url: sanitize_input(request.resource),
       http_version: request.version,
       status_code: response.status_code,
+      body_bytes: content_length(response),
       duration_ms: duration.try(&.total_milliseconds.round.to_i),
       user_agent: user_agent(request),
       referer: referer(request)
     }
+  end
+
+  private def content_length(response)
+    response.headers["Content-Length"]?.try(&.to_i64)
   end
 
   private def referer(request)
