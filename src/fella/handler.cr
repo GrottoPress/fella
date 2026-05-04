@@ -88,16 +88,7 @@ class Fella::Handler
       end
     end
 
-    URI.new(
-      request.uri.scheme,
-      request.uri.host,
-      request.uri.port,
-      request.uri.path,
-      query.empty? ? nil : query,
-      request.uri.user,
-      request.uri.password,
-      request.uri.fragment
-    ).request_target
+    query.empty? ? request.path : "#{request.path}?#{query}"
   end
 
   private def sanitize_input(input)
