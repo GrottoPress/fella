@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Log HTTP Referer
 - Log response body size
 - Log request ID
-- Add `.sensitive_params` settings
+- Add `.sensitive_params` setting
 
 ### Fixed
 - Sanitize URL and user agent strings
