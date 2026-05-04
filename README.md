@@ -35,7 +35,7 @@ Fella.configure do |settings|
   settings.request_id_header = "X-Request-ID"
 
   # Uses substring matching, so `token` would match `access_token`
-  settings.sensitive_params = {"code", "password", "secret", "token"}
+  settings.filter_params = {"code", "password", "secret", "token"}
 end
 
 server = HTTP::Server.new([

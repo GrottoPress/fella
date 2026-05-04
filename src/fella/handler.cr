@@ -75,12 +75,12 @@ class Fella::Handler
   end
 
   private def redact_url(request)
-    sensitive_params = Fella.settings.sensitive_params
-    return request.resource if sensitive_params.empty?
+    filter_params = Fella.settings.filter_params
+    return request.resource if filter_params.empty?
 
     query = URI::Params.build do |form|
       request.query_params.each do |name, value|
-        if sensitive_params.any? { |key| name.downcase.includes?(key.downcase) }
+        if filter_params.any? { |key| name.downcase.includes?(key.downcase) }
           form.add(name, "REDACTED")
         else
           form.add(name, value)

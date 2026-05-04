@@ -8,14 +8,14 @@ module Fella
   extend self
 
   private module Settings
-    class_property request_id_header : String? = "X-Request-ID"
-
-    class_property sensitive_params : Indexable(String) = {
+    class_property filter_params : Indexable(String) = {
       "code",
       "password",
       "secret",
       "token"
     }
+
+    class_property request_id_header : String? = "X-Request-ID"
   end
 
   def settings
