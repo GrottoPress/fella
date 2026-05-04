@@ -65,6 +65,6 @@ class Fella::Handler
   end
 
   private def sanitize_input(input)
-    input[0, 512].gsub(/[\p{C}\r\n\t]+/, ' ').strip
+    input[0, 512].gsub(/\p{C}+/, ' ').strip
   end
 end
