@@ -47,10 +47,6 @@ class Fella::Handler
     }
   end
 
-  private def user_agent(request)
-    request.headers["User-Agent"]?.try { |agent| sanitize_input(agent) }
-  end
-
   private def referer(request)
     request.headers["Referer"]?.try do |referer|
       uri = URI.parse(referer)
@@ -62,6 +58,10 @@ class Fella::Handler
 
       sanitize_input(uri.to_s)
     end
+  end
+
+  private def user_agent(request)
+    request.headers["User-Agent"]?.try { |agent| sanitize_input(agent) }
   end
 
   private def sanitize_input(input)
