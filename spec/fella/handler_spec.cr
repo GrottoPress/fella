@@ -33,6 +33,16 @@ describe Fella::Handler do
     end
   end
 
+  it "sanitizes URL" do
+    Log.capture(AppServer.log.source) do |logs|
+      AppServer.new.listen do |server|
+        HTTP::Client.get server.uri("/test\tfoo")
+        logs.check(:info, "")
+        logs.entry.data[:url].to_s.should eq("/test foo")
+      end
+    end
+  end
+
   it "truncates long URL" do
     long_path = "/" + "a" * 600
     Log.capture(AppServer.log.source) do |logs|
@@ -42,6 +52,18 @@ describe Fella::Handler do
         url = logs.entry.data[:url].to_s
         url.size.should be <= 512
         url.size.should eq(512)
+      end
+    end
+  end
+
+  it "sanitizes User-Agent" do
+    Log.capture(AppServer.log.source) do |logs|
+      AppServer.new.listen do |server|
+        headers = HTTP::Headers.new
+        headers["User-Agent"] = "Mozilla\t5.0"
+        HTTP::Client.get server.uri("/success"), headers: headers
+        logs.check(:info, "")
+        logs.entry.data[:user_agent].to_s.should eq("Mozilla 5.0")
       end
     end
   end
@@ -57,28 +79,6 @@ describe Fella::Handler do
         ua = logs.entry.data[:user_agent].to_s
         ua.size.should be <= 512
         ua.size.should eq(512)
-      end
-    end
-  end
-
-  it "sanitizes URL" do
-    Log.capture(AppServer.log.source) do |logs|
-      AppServer.new.listen do |server|
-        HTTP::Client.get server.uri("/test\tfoo")
-        logs.check(:info, "")
-        logs.entry.data[:url].to_s.should eq("/test foo")
-      end
-    end
-  end
-
-  it "sanitizes User-Agent" do
-    Log.capture(AppServer.log.source) do |logs|
-      AppServer.new.listen do |server|
-        headers = HTTP::Headers.new
-        headers["User-Agent"] = "Mozilla\t5.0"
-        HTTP::Client.get server.uri("/success"), headers: headers
-        logs.check(:info, "")
-        logs.entry.data[:user_agent].to_s.should eq("Mozilla 5.0")
       end
     end
   end
